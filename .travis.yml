@@ -1,0 +1,18 @@
+language: java
+jdk:
+  - openjdk8
+addons:
+  sonarcloud:
+    organization: vladislavsevruk
+    token:
+      secure: iwKt8qmzJNOB8C/Q04BFVFzT4FuPI9K408ItvVDJRxKOLjhOlj+4iV9gZM02X00q6Yj+Fcrq+IppE/ZbgC1Ml1YTFGyc7ZoDafojxephP0ps/3cyztF3XEj/4tahKg3Qi9QHNGvbZsqSQSqbu63zZ6qxdEdaFQMnQhDs6zXxnyJnFa0sQ2sPBxQ07NV+GpLxHNnhmNJQqlxjoJuLYD1mCsHijpq0MqcRNj6S7eX8lWF0zrNMW5EB11yv03sd4VUl69umaqgRC7z7SAAShBZN+nSLNdFH6xSHJwI6YTiedUyp++sA15aK0M2kLLTQrRBqUgC4mwaKjpqjRrczmO75bdg94z1xPiBR+AQkXni2o3c6rnDlOr2gqcTwdXxYwyHoroDtNAe8kE/nS2hvAMYQ2L3XqlPG82MrlJWlsUI20/1FzfhIi4DeoMO7BpSYyaljZmANJpz6a18AD3gIgbr/lQ7B/zkPqhIVvZdqtdZofy73glbzzfXhx/KvZr89iJHUFLLcor5tmilW1v6EitC4MwXp5Ka/h4aSSH2RVCeFQyvE7trPRXVCfuZ5SsCSf6ioyXuJJqmL4NVeNoE0TDHmajDClHlBOlewdJhufz/NdqHBHNW313ZIy0BcqZLFY64Jf8/smD+LsTbNocVhK3jrIW+QWJxxFMsDDIU05V/DC9U=
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+script:
+  - ./gradlew clean jacocoTestReport sonarqube
+  - ./gradlew build --scan -s
