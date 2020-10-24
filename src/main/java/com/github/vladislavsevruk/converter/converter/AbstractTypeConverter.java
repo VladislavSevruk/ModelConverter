@@ -33,7 +33,15 @@ public abstract class AbstractTypeConverter implements TypeConverter {
      */
     @Override
     public boolean canConvert(Class<?> from, Class<?> to) {
-        return getFromType().isAssignableFrom(from) && to.isAssignableFrom(getToType());
+        return checkFromType(from) && checkToType(to);
+    }
+
+    protected boolean checkFromType(Class<?> fromType) {
+        return getFromType().isAssignableFrom(fromType);
+    }
+
+    protected boolean checkToType(Class<?> toType) {
+        return toType.isAssignableFrom(getToType());
     }
 
     protected abstract Class<?> getFromType();

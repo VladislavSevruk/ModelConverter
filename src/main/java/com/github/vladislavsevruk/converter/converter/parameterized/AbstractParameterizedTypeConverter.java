@@ -49,14 +49,6 @@ public abstract class AbstractParameterizedTypeConverter<T> extends AbstractType
      * {@inheritDoc}
      */
     @Override
-    public boolean canConvert(Class<?> from, Class<?> to) {
-        return checkFromType(from) && checkToType(to);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public T convert(Object from, TypeMeta<? extends T> toMeta) {
         if (from == null) {
             log.debug(() -> "Received value is 'null' so returning 'null' as well.");
@@ -77,14 +69,6 @@ public abstract class AbstractParameterizedTypeConverter<T> extends AbstractType
     @Override
     public String getName() {
         return getClass().getName();
-    }
-
-    protected boolean checkFromType(Class<?> fromType) {
-        return getFromType().isAssignableFrom(fromType);
-    }
-
-    protected boolean checkToType(Class<?> toType) {
-        return toType.isAssignableFrom(getToType());
     }
 
     protected abstract T convertNonNullObject(Object from, TypeMeta<? extends T> toMeta);

@@ -107,7 +107,7 @@ public final class TypeConverterStorageImpl implements TypeConverterStorage {
      * {@inheritDoc}
      */
     @Override
-    public void add(ClassTypeConverter customConverter) {
+    public void add(ClassTypeConverter<?> customConverter) {
         CONVERTERS_LOCK.writeLock().lock();
         add((TypeConverter) customConverter);
         CONVERTERS_LOCK.writeLock().unlock();
@@ -117,7 +117,7 @@ public final class TypeConverterStorageImpl implements TypeConverterStorage {
      * {@inheritDoc}
      */
     @Override
-    public void add(ParameterizedTypeConverter customConverter) {
+    public void add(ParameterizedTypeConverter<?> customConverter) {
         CONVERTERS_LOCK.writeLock().lock();
         add((TypeConverter) customConverter);
         CONVERTERS_LOCK.writeLock().unlock();

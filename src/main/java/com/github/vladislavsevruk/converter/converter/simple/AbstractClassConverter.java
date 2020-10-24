@@ -43,7 +43,7 @@ public abstract class AbstractClassConverter<T, U> extends AbstractTypeConverter
             log.debug(() -> "Received value is 'null' so returning 'null' as well.");
             return null;
         }
-        if (!getFromType().isAssignableFrom(from.getClass())) {
+        if (!checkFromType(from.getClass())) {
             String message = String.format("Expected to convert assignable from '%s' type but received: '%s'.",
                     getFromType().getName(), from.getClass().getName());
             throw new TypeConversionException(message);
