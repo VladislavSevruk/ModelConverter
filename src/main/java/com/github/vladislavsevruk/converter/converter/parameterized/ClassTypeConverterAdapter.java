@@ -28,6 +28,10 @@ import com.github.vladislavsevruk.resolver.type.TypeMeta;
 
 /**
  * Adapts <code>ParameterizedTypeConverter</code> to <code>ClassTypeConverter</code>.
+ *
+ * @param <T> type of conversion result.
+ * @see ClassTypeConverter
+ * @see ParameterizedTypeConverter
  */
 public final class ClassTypeConverterAdapter<T> implements ClassTypeConverter<T> {
 
