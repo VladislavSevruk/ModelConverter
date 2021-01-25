@@ -26,13 +26,19 @@ package com.github.vladislavsevruk.converter.test.acceptor;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.AbstractMap;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Accessors(fluent = true)
 @Data
 public class FromMapAcceptorModel {
 
+    private AbstractMap<String, String> toAbstractMapMatchingTypes;
+    private HashMap<String, String> toHashMapMatchingTypes;
+    private LinkedHashMap<String, String> toLinkedHashMapMatchingTypes;
     private Map<String, String> toMapMatchingTypes;
     private Map<String, String> toMapMismatchingKeyTypeWithConverter;
     private Map<Date, String> toMapMismatchingKeyTypeWithoutConverter;

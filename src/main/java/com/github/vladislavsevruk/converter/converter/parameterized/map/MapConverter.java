@@ -27,12 +27,17 @@ import com.github.vladislavsevruk.converter.context.ConversionContext;
 import com.github.vladislavsevruk.converter.converter.parameterized.AbstractParameterizedTypeConverter;
 import com.github.vladislavsevruk.converter.exception.TypeConversionException;
 import com.github.vladislavsevruk.converter.util.ClassUtil;
+import com.github.vladislavsevruk.converter.util.InstanceCreationUtil;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
 import lombok.Value;
 import lombok.extern.log4j.Log4j2;
 
+import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BinaryOperator;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +55,7 @@ public final class MapConverter extends AbstractParameterizedTypeConverter<Map<?
         return getToType().isAssignableFrom(toType) || toType.isAssignableFrom(getToType());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Map<?, ?> convertNonNullObject(Object from, TypeMeta<? extends Map<?, ?>> toMeta) {
         Map<?, ?> fromValue = (Map<?, ?>) from;
@@ -70,7 +76,8 @@ public final class MapConverter extends AbstractParameterizedTypeConverter<Map<?
             return null;
         }
         return fromValue.entrySet().stream().map(entry -> convertKeyValue(entry, toKeyTypeMeta, toValueTypeMeta))
-                .collect(Collectors.toMap(KeyValuePair::getKey, KeyValuePair::getValue));
+                .collect(Collectors.toMap(KeyValuePair::getKey, KeyValuePair::getValue, throwingMerger(),
+                        getTypeSupplier(toMeta.getType())));
     }
 
     @Override
@@ -94,6 +101,10 @@ public final class MapConverter extends AbstractParameterizedTypeConverter<Map<?
         }
     }
 
+    private static <T> BinaryOperator<T> throwingMerger() {
+        return (u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
+    }
+
     private KeyValuePair convertKeyValue(Entry<?, ?> entry, TypeMeta<?> toKeyTypeMeta, TypeMeta<?> toValueTypeMeta) {
         Object key = getEngine().convert(entry.getKey(), toKeyTypeMeta);
         Object value = getEngine().convert(entry.getValue(), toValueTypeMeta);
@@ -102,6 +113,13 @@ public final class MapConverter extends AbstractParameterizedTypeConverter<Map<?
 
     private TypeMeta<?> getKeyType(TypeMeta<?> typeMeta) {
         return typeMeta.getGenericTypes().length == 0 ? TypeMeta.OBJECT_META : typeMeta.getGenericTypes()[0];
+    }
+
+    private Supplier<Map> getTypeSupplier(Class<?> type) {
+        if (type.isAssignableFrom(AbstractMap.class)) {
+            return HashMap::new;
+        }
+        return () -> (Map) InstanceCreationUtil.createItem(type);
     }
 
     private TypeMeta<?> getValueType(TypeMeta<?> typeMeta) {

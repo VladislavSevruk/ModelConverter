@@ -24,7 +24,7 @@
 package com.github.vladislavsevruk.converter.converter;
 
 /**
- * Converts one type to another.
+ * Common interface for different types of type converters.
  */
 public interface TypeConverter {
 

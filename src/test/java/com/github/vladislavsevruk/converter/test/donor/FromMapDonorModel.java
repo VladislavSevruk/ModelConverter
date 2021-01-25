@@ -28,6 +28,18 @@ import java.util.Map;
 
 public class FromMapDonorModel {
 
+    public Map<String, String> toAbstractMapMatchingTypes() {
+        return Collections.singletonMap("key1", "value1");
+    }
+
+    public Map<String, String> toHashMapMatchingTypes() {
+        return Collections.singletonMap("key1", "value1");
+    }
+
+    public Map<String, String> toLinkedMapMatchingTypes() {
+        return Collections.singletonMap("key1", "value1");
+    }
+
     public Map<String, String> toMapMatchingTypes() {
         return Collections.singletonMap("key1", "value1");
     }

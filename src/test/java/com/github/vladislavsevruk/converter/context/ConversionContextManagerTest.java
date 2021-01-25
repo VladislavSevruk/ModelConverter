@@ -40,14 +40,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ConversionContextManagerTest {
 
-    private static boolean initialAutoRefreshContext;
-    private static ConversionModuleFactoryMethod<ConversionEngine> initialConversionEngineFactoryMethod;
-    private static ConversionModuleFactoryMethod<ExecutableTypeResolver<TypeMeta<?>>>
-            initialExecutableTypeResolverFactoryMethod;
-    private static ConversionModuleFactoryMethod<GetterSetterMapper> initialGetterSetterMapperFactoryMethod;
-    private static ConversionModuleFactoryMethod<TypeConverterPicker> initialTypeConverterPickerFactoryMethod;
-    private static ConversionModuleFactoryMethod<TypeConverterStorage> initialTypeConverterStorageFactoryMethod;
-
     @Mock
     private ConversionEngine conversionEngine;
     @Mock
@@ -60,13 +52,7 @@ class ConversionContextManagerTest {
     private TypeConverterStorage typeConverterStorage;
 
     @BeforeAll
-    static void disableContextRefresh() {
-        initialAutoRefreshContext = ConversionContextManager.isAutoRefreshContext();
-        initialConversionEngineFactoryMethod = ConversionModuleFactory.conversionEngine();
-        initialGetterSetterMapperFactoryMethod = ConversionModuleFactory.getterSetterMapper();
-        initialExecutableTypeResolverFactoryMethod = ConversionModuleFactory.executableTypeResolver();
-        initialTypeConverterPickerFactoryMethod = ConversionModuleFactory.typeConverterPicker();
-        initialTypeConverterStorageFactoryMethod = ConversionModuleFactory.typeConverterStorage();
+    static void enableContextRefresh() {
         ConversionContextManager.enableContextAutoRefresh();
     }
 
