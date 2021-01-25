@@ -251,6 +251,9 @@ class ModelConverterTest {
         FromMapDonorModel donor = new FromMapDonorModel();
         FromMapAcceptorModel result = modelConverter.convert(donor, FromMapAcceptorModel.class);
         Assertions.assertNotNull(result);
+        assertMap(donor.toAbstractMapMatchingTypes(), result.toAbstractMapMatchingTypes());
+        assertMap(donor.toHashMapMatchingTypes(), result.toHashMapMatchingTypes());
+        assertMap(donor.toLinkedHashMapMatchingTypes(), result.toLinkedHashMapMatchingTypes());
         assertMap(donor.toMapMatchingTypes(), result.toMapMatchingTypes());
         assertMap(Collections.singletonMap("2", "value2"), result.toMapMismatchingKeyTypeWithConverter());
         Assertions.assertNull(result.toMapMismatchingKeyTypeWithoutConverter());
