@@ -124,7 +124,7 @@ public final class CustomTypeConverter extends AbstractParameterizedTypeConverte
         Object donorMethodValue = getDonorMethodValue(donor, donorMethod);
         if (Objects.nonNull(donorMethodValue)) {
             MappedMethod methodPair = getContext().getGetterSetterMapper()
-                    .mapMatchingSetter(donorMethod.getName(), donorMethodValue, acceptorMeta, acceptorMethods);
+                    .mapMatchingSetter(donorMethod, donorMethodValue, acceptorMeta, acceptorMethods);
             if (Objects.nonNull(methodPair)) {
                 setAcceptorMethodValue(acceptor, methodPair, donorMethodValue);
             }

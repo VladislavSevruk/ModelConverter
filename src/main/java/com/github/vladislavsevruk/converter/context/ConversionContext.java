@@ -26,6 +26,7 @@ package com.github.vladislavsevruk.converter.context;
 import com.github.vladislavsevruk.converter.converter.picker.TypeConverterPicker;
 import com.github.vladislavsevruk.converter.converter.storage.TypeConverterStorage;
 import com.github.vladislavsevruk.converter.engine.ConversionEngine;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorage;
 import com.github.vladislavsevruk.converter.mapper.GetterSetterMapper;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
@@ -39,6 +40,11 @@ public interface ConversionContext {
      * Returns current instance of <code>ConversionEngine</code> stored at context.
      */
     ConversionEngine getConversionEngine();
+
+    /**
+     * Returns current instance of <code>CustomGetterSetterMappingStorage</code> stored at context.
+     */
+    CustomGetterSetterMappingStorage getCustomGetterSetterMappingStorage();
 
     /**
      * Returns current instance of <code>ExecutableTypeResolver</code> stored at context.

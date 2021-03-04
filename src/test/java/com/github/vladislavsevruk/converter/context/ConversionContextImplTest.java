@@ -29,8 +29,10 @@ import com.github.vladislavsevruk.converter.converter.storage.TypeConverterStora
 import com.github.vladislavsevruk.converter.converter.storage.TypeConverterStorageImpl;
 import com.github.vladislavsevruk.converter.engine.ConversionEngine;
 import com.github.vladislavsevruk.converter.engine.ConversionEngineImpl;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorage;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorageImpl;
 import com.github.vladislavsevruk.converter.mapper.GetterSetterMapper;
-import com.github.vladislavsevruk.converter.mapper.method.GetterSetterMapperImpl;
+import com.github.vladislavsevruk.converter.mapper.GetterSetterMapperImpl;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeMetaResolver;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
@@ -46,6 +48,8 @@ class ConversionContextImplTest {
     @Mock
     private ConversionEngine conversionEngine;
     @Mock
+    private CustomGetterSetterMappingStorage customGetterSetterMappingStorage;
+    @Mock
     private ExecutableTypeResolver<TypeMeta<?>> executableTypeResolver;
     @Mock
     private GetterSetterMapper getterSetterMapper;
@@ -56,8 +60,10 @@ class ConversionContextImplTest {
 
     @Test
     void customConversionEngineFactoryMethodReturnsNullTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(context -> null, null, null, null, null);
+        ConversionContext conversionContext = new ConversionContextImpl(context -> null, null, null, null, null, null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -68,8 +74,37 @@ class ConversionContextImplTest {
     @Test
     void customConversionEngineTest() {
         ConversionContext conversionContext = new ConversionContextImpl(context -> conversionEngine, null, null, null,
-                null);
+                null, null);
         Assertions.assertEquals(conversionEngine, conversionContext.getConversionEngine());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
+        Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
+        Assertions.assertEquals(ExecutableTypeMetaResolver.class,
+                conversionContext.getExecutableTypeResolver().getClass());
+        Assertions.assertEquals(TypeConverterPickerImpl.class, conversionContext.getTypeConverterPicker().getClass());
+        Assertions.assertEquals(TypeConverterStorageImpl.class, conversionContext.getTypeConverterStorage().getClass());
+    }
+
+    @Test
+    void customCustomGetterSetterMappingStorageFactoryMethodReturnsNullTest() {
+        ConversionContext conversionContext = new ConversionContextImpl(null, context -> null, null, null, null, null);
+        Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
+        Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
+        Assertions.assertEquals(ExecutableTypeMetaResolver.class,
+                conversionContext.getExecutableTypeResolver().getClass());
+        Assertions.assertEquals(TypeConverterPickerImpl.class, conversionContext.getTypeConverterPicker().getClass());
+        Assertions.assertEquals(TypeConverterStorageImpl.class, conversionContext.getTypeConverterStorage().getClass());
+    }
+
+    @Test
+    void customCustomGetterSetterMappingStorageTest() {
+        ConversionContext conversionContext = new ConversionContextImpl(null,
+                context -> customGetterSetterMappingStorage, null, null, null, null);
+        Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(customGetterSetterMappingStorage,
+                conversionContext.getCustomGetterSetterMappingStorage());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -79,8 +114,10 @@ class ConversionContextImplTest {
 
     @Test
     void customGetterSetterMapperFactoryMethodReturnsNullTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, context -> null, null, null, null);
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, context -> null, null, null, null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -90,9 +127,11 @@ class ConversionContextImplTest {
 
     @Test
     void customGetterSetterMapperTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, context -> getterSetterMapper, null, null,
-                null);
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, context -> getterSetterMapper, null,
+                null, null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(getterSetterMapper, conversionContext.getGetterSetterMapper());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -102,8 +141,10 @@ class ConversionContextImplTest {
 
     @Test
     void customMethodTypeResolverFactoryMethodReturnsNullTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, null, context -> null, null, null);
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, context -> null, null, null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -113,9 +154,11 @@ class ConversionContextImplTest {
 
     @Test
     void customMethodTypeResolverTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, null, context -> executableTypeResolver,
-                null, null);
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, null,
+                context -> executableTypeResolver, null, null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(executableTypeResolver, conversionContext.getExecutableTypeResolver());
         Assertions.assertEquals(TypeConverterPickerImpl.class, conversionContext.getTypeConverterPicker().getClass());
@@ -125,8 +168,10 @@ class ConversionContextImplTest {
     @Test
     void customModulesFactoryMethodReturnNullTest() {
         ConversionContext conversionContext = new ConversionContextImpl(context -> null, context -> null,
-                context -> null, context -> null, context -> null);
+                context -> null, context -> null, context -> null, context -> null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -137,9 +182,11 @@ class ConversionContextImplTest {
     @Test
     void customModulesTest() {
         ConversionContext conversionContext = new ConversionContextImpl(context -> conversionEngine,
-                context -> getterSetterMapper, context -> executableTypeResolver, context -> typeConverterPicker,
-                context -> typeConverterStorage);
+                context -> customGetterSetterMappingStorage, context -> getterSetterMapper,
+                context -> executableTypeResolver, context -> typeConverterPicker, context -> typeConverterStorage);
         Assertions.assertEquals(conversionEngine, conversionContext.getConversionEngine());
+        Assertions.assertEquals(customGetterSetterMappingStorage,
+                conversionContext.getCustomGetterSetterMappingStorage());
         Assertions.assertEquals(getterSetterMapper, conversionContext.getGetterSetterMapper());
         Assertions.assertEquals(executableTypeResolver, conversionContext.getExecutableTypeResolver());
         Assertions.assertEquals(typeConverterPicker, conversionContext.getTypeConverterPicker());
@@ -148,8 +195,10 @@ class ConversionContextImplTest {
 
     @Test
     void customTypeConverterPickerFactoryMethodReturnsNullTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, context -> null, null);
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, null, context -> null, null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -159,9 +208,11 @@ class ConversionContextImplTest {
 
     @Test
     void customTypeConverterPickerTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, null, null,
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, null,
                 context -> typeConverterPicker, null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -171,8 +222,10 @@ class ConversionContextImplTest {
 
     @Test
     void customTypeConverterStorageFactoryMethodReturnsNullTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, null, context -> null);
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, null, null, context -> null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -182,9 +235,11 @@ class ConversionContextImplTest {
 
     @Test
     void customTypeConverterStorageTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, null,
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, null, null,
                 context -> typeConverterStorage);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());
@@ -194,8 +249,10 @@ class ConversionContextImplTest {
 
     @Test
     void defaultModulesTest() {
-        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, null, null);
+        ConversionContext conversionContext = new ConversionContextImpl(null, null, null, null, null, null);
         Assertions.assertEquals(ConversionEngineImpl.class, conversionContext.getConversionEngine().getClass());
+        Assertions.assertEquals(CustomGetterSetterMappingStorageImpl.class,
+                conversionContext.getCustomGetterSetterMappingStorage().getClass());
         Assertions.assertEquals(GetterSetterMapperImpl.class, conversionContext.getGetterSetterMapper().getClass());
         Assertions.assertEquals(ExecutableTypeMetaResolver.class,
                 conversionContext.getExecutableTypeResolver().getClass());

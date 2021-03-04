@@ -29,6 +29,7 @@ import com.github.vladislavsevruk.converter.converter.parameterized.Parameterize
 import com.github.vladislavsevruk.converter.converter.parameterized.array.ArrayToArrayConverter;
 import com.github.vladislavsevruk.converter.converter.parameterized.array.ArrayToListConverter;
 import com.github.vladislavsevruk.converter.converter.parameterized.array.ArrayToSetConverter;
+import com.github.vladislavsevruk.converter.converter.parameterized.enumeration.CharSequenceToEnumConverter;
 import com.github.vladislavsevruk.converter.converter.parameterized.iterable.IterableToArrayConverter;
 import com.github.vladislavsevruk.converter.converter.parameterized.iterable.IterableToListConverter;
 import com.github.vladislavsevruk.converter.converter.parameterized.iterable.IterableToSetConverter;
@@ -221,7 +222,7 @@ public final class TypeConverterStorageImpl implements TypeConverterStorage {
         CONVERTERS_LOCK.writeLock().unlock();
     }
 
-    private void addCharSequenceConverters() {
+    private void addCharSequenceConverters(ConversionContext conversionContext) {
         defaultConverters.add(new ObjectToStringConverter());
         defaultConverters.add(new CharSequenceToDoubleConverter());
         defaultConverters.add(new CharSequenceToLongConverter());
@@ -231,6 +232,7 @@ public final class TypeConverterStorageImpl implements TypeConverterStorage {
         defaultConverters.add(new CharSequenceToByteConverter());
         defaultConverters.add(new CharSequenceToBooleanConverter());
         defaultConverters.add(new CharSequenceToCharacterConverter());
+        defaultConverters.add(new CharSequenceToEnumConverter<>(conversionContext));
     }
 
     private void addDateConverters() {
@@ -244,7 +246,7 @@ public final class TypeConverterStorageImpl implements TypeConverterStorage {
     }
 
     private void addDefaultConverters(ConversionContext conversionContext) {
-        addCharSequenceConverters();
+        addCharSequenceConverters(conversionContext);
         addNumberConverters();
         addIterableConverters(conversionContext);
         defaultConverters.add(new MapConverter(conversionContext));

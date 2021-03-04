@@ -55,13 +55,5 @@ public abstract class AbstractClassConverter<T, U> extends AbstractTypeConverter
         return value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return getClass().getName();
-    }
-
     protected abstract U convertNonNullObject(T from);
 }

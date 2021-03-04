@@ -63,14 +63,6 @@ public abstract class AbstractParameterizedTypeConverter<T> extends AbstractType
         return value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return getClass().getName();
-    }
-
     protected abstract T convertNonNullObject(Object from, TypeMeta<? extends T> toMeta);
 
     protected ConversionContext getContext() {

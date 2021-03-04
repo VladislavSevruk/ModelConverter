@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Uladzislau Seuruk
+ * Copyright (c) 2021 Uladzislau Seuruk
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,28 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.vladislavsevruk.converter.converter.simple.string;
+package com.github.vladislavsevruk.converter.test.donor;
 
-import lombok.extern.log4j.Log4j2;
+public class CustomMappingDonorModel extends DonorSuperclassModel {
 
-/**
- * Converts char sequence to char.
- */
-@Log4j2
-public final class CharSequenceToCharacterConverter extends CharSequenceConverter<Character> {
-
-    @Override
-    protected Character convertNonNullObject(CharSequence from) {
-        if (from.length() == 0) {
-            log.warn(() -> String
-                    .format("Failed to convert '\"\"' to '%s'. Returning null.", Character.class.getName()));
-            return null;
-        }
-        return from.charAt(0);
+    public String donorMatchingType() {
+        return "donorMatchingType";
     }
 
-    @Override
-    protected Class<?> getToType() {
-        return Character.class;
+    public String donorMethodWithParameters(String param1) {
+        return "donorMethodWithParameters";
+    }
+
+    public String donorNonMatchingType() {
+        return "2";
+    }
+
+    public String donorNotMappedMethod() {
+        return "donorNotMappedMethod";
+    }
+
+    public void donorVoidMethod() {
+        // stub
     }
 }

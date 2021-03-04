@@ -75,9 +75,10 @@ public final class MapConverter extends AbstractParameterizedTypeConverter<Map<?
                             toValueTypeMeta.getType().getName()));
             return null;
         }
-        return fromValue.entrySet().stream().map(entry -> convertKeyValue(entry, toKeyTypeMeta, toValueTypeMeta))
-                .collect(Collectors.toMap(KeyValuePair::getKey, KeyValuePair::getValue, throwingMerger(),
-                        getTypeSupplier(toMeta.getType())));
+        return (Map<?, ?>) fromValue.entrySet().stream()
+                .map(entry -> convertKeyValue(entry, toKeyTypeMeta, toValueTypeMeta)).collect(Collectors
+                        .toMap(KeyValuePair::getKey, KeyValuePair::getValue, throwingMerger(),
+                                getTypeSupplier(toMeta.getType())));
     }
 
     @Override

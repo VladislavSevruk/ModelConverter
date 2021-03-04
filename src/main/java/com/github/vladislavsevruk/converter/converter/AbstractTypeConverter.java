@@ -36,6 +36,14 @@ public abstract class AbstractTypeConverter implements TypeConverter {
         return checkFromType(from) && checkToType(to);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return getClass().getName();
+    }
+
     protected boolean checkFromType(Class<?> fromType) {
         return getFromType().isAssignableFrom(fromType);
     }

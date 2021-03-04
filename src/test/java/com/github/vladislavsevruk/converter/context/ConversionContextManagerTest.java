@@ -26,12 +26,14 @@ package com.github.vladislavsevruk.converter.context;
 import com.github.vladislavsevruk.converter.converter.picker.TypeConverterPicker;
 import com.github.vladislavsevruk.converter.converter.storage.TypeConverterStorage;
 import com.github.vladislavsevruk.converter.engine.ConversionEngine;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorage;
 import com.github.vladislavsevruk.converter.mapper.GetterSetterMapper;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -42,6 +44,8 @@ class ConversionContextManagerTest {
 
     @Mock
     private ConversionEngine conversionEngine;
+    @Mock
+    private CustomGetterSetterMappingStorage customGetterSetterMappingStorage;
     @Mock
     private ExecutableTypeResolver<TypeMeta<?>> executableTypeResolver;
     @Mock
@@ -56,17 +60,13 @@ class ConversionContextManagerTest {
         ConversionContextManager.enableContextAutoRefresh();
     }
 
-    @AfterAll
-    static void setInitialAutoContextRefresh() {
-        resetModulesAndContext();
-    }
-
     @Test
     void autoRefreshContextAfterAllModulesUpdatesTest() {
         resetModulesAndContext();
         ConversionContextManager.enableContextAutoRefresh();
         ConversionContext conversionContext1 = ConversionContextManager.getContext();
-        ConversionModuleFactory.replaceEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceConversionEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceCustomGetterSetterMappingStorage(context -> customGetterSetterMappingStorage);
         ConversionModuleFactory.replaceGetterSetterMapper(context -> getterSetterMapper);
         ConversionModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
         ConversionModuleFactory.replaceTypeConverterPicker(context -> typeConverterPicker);
@@ -74,6 +74,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertSame(conversionEngine, conversionContext2.getConversionEngine());
+        Assertions
+                .assertSame(customGetterSetterMappingStorage, conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions.assertSame(getterSetterMapper, conversionContext2.getGetterSetterMapper());
         Assertions.assertSame(executableTypeResolver, conversionContext2.getExecutableTypeResolver());
         Assertions.assertSame(typeConverterPicker, conversionContext2.getTypeConverterPicker());
@@ -85,10 +87,33 @@ class ConversionContextManagerTest {
         resetModulesAndContext();
         ConversionContextManager.enableContextAutoRefresh();
         ConversionContext conversionContext1 = ConversionContextManager.getContext();
-        ConversionModuleFactory.replaceEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceConversionEngine(context -> conversionEngine);
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertSame(conversionEngine, conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
+        Assertions
+                .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
+        Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
+                conversionContext2.getExecutableTypeResolver());
+        Assertions.assertNotSame(conversionContext1.getTypeConverterPicker(),
+                conversionContext2.getTypeConverterPicker());
+        Assertions.assertNotSame(conversionContext1.getTypeConverterStorage(),
+                conversionContext2.getTypeConverterStorage());
+    }
+
+    @Test
+    void autoRefreshContextAfterCustomGetterSetterMappingStorageTest() {
+        resetModulesAndContext();
+        ConversionContextManager.enableContextAutoRefresh();
+        ConversionContext conversionContext1 = ConversionContextManager.getContext();
+        ConversionModuleFactory.replaceCustomGetterSetterMappingStorage(context -> customGetterSetterMappingStorage);
+        ConversionContext conversionContext2 = ConversionContextManager.getContext();
+        Assertions.assertNotSame(conversionContext1, conversionContext2);
+        Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions
+                .assertSame(customGetterSetterMappingStorage, conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions
                 .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
         Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
@@ -108,6 +133,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions
                 .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
         Assertions.assertSame(executableTypeResolver, conversionContext2.getExecutableTypeResolver());
@@ -125,6 +152,8 @@ class ConversionContextManagerTest {
         ConversionModuleFactory.replaceGetterSetterMapper(context -> getterSetterMapper);
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
         Assertions.assertSame(getterSetterMapper, conversionContext2.getGetterSetterMapper());
         Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
@@ -144,6 +173,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions
                 .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
         Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
@@ -162,6 +193,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions
                 .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
         Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
@@ -185,7 +218,8 @@ class ConversionContextManagerTest {
         resetModulesAndContext();
         ConversionContextManager.disableContextAutoRefresh();
         ConversionContext conversionContext1 = ConversionContextManager.getContext();
-        ConversionModuleFactory.replaceEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceConversionEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceCustomGetterSetterMappingStorage(context -> customGetterSetterMappingStorage);
         ConversionModuleFactory.replaceGetterSetterMapper(context -> getterSetterMapper);
         ConversionModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
         ConversionModuleFactory.replaceTypeConverterPicker(context -> typeConverterPicker);
@@ -194,6 +228,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertSame(conversionEngine, conversionContext2.getConversionEngine());
+        Assertions
+                .assertSame(customGetterSetterMappingStorage, conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions.assertSame(getterSetterMapper, conversionContext2.getGetterSetterMapper());
         Assertions.assertSame(executableTypeResolver, conversionContext2.getExecutableTypeResolver());
         Assertions.assertSame(typeConverterPicker, conversionContext2.getTypeConverterPicker());
@@ -205,11 +241,37 @@ class ConversionContextManagerTest {
         resetModulesAndContext();
         ConversionContextManager.disableContextAutoRefresh();
         ConversionContext conversionContext1 = ConversionContextManager.getContext();
-        ConversionModuleFactory.replaceEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceConversionEngine(context -> conversionEngine);
         ConversionContextManager.refreshContext();
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertSame(conversionEngine, conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
+        Assertions
+                .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
+        Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
+                conversionContext2.getExecutableTypeResolver());
+        Assertions.assertNotSame(conversionContext1.getTypeConverterPicker(),
+                conversionContext2.getTypeConverterPicker());
+        Assertions.assertNotSame(conversionContext1.getTypeConverterStorage(),
+                conversionContext2.getTypeConverterStorage());
+    }
+
+    @Test
+    void newContextAfterRefreshAfterCustomGetterSetterMappingStorageUpdatesTest() {
+        resetModulesAndContext();
+        ConversionContextManager.disableContextAutoRefresh();
+        ConversionContext conversionContext1 = ConversionContextManager.getContext();
+        ConversionModuleFactory.replaceCustomGetterSetterMappingStorage(context -> customGetterSetterMappingStorage);
+        ConversionContextManager.refreshContext();
+        ConversionContext conversionContext2 = ConversionContextManager.getContext();
+        Assertions.assertNotSame(conversionContext1, conversionContext2);
+        Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions
+                .assertSame(customGetterSetterMappingStorage, conversionContext2.getCustomGetterSetterMappingStorage());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions
                 .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
         Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
@@ -230,6 +292,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions
                 .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
         Assertions.assertSame(executableTypeResolver, conversionContext2.getExecutableTypeResolver());
@@ -249,6 +313,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions.assertSame(getterSetterMapper, conversionContext2.getGetterSetterMapper());
         Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
                 conversionContext2.getExecutableTypeResolver());
@@ -268,6 +334,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions
                 .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
         Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
@@ -287,6 +355,8 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertNotSame(conversionContext1, conversionContext2);
         Assertions.assertNotSame(conversionContext1.getConversionEngine(), conversionContext2.getConversionEngine());
+        Assertions.assertNotSame(conversionContext1.getCustomGetterSetterMappingStorage(),
+                conversionContext2.getCustomGetterSetterMappingStorage());
         Assertions
                 .assertNotSame(conversionContext1.getGetterSetterMapper(), conversionContext2.getGetterSetterMapper());
         Assertions.assertNotSame(conversionContext1.getExecutableTypeResolver(),
@@ -296,12 +366,28 @@ class ConversionContextManagerTest {
         Assertions.assertSame(typeConverterStorage, conversionContext2.getTypeConverterStorage());
     }
 
+    @BeforeEach
+    @AfterEach
+    void resetModulesAndContext() {
+        ContextUtil.resetModulesAndContext();
+    }
+
     @Test
     void sameContextIsReturnedIfAutoRefreshDisabledAfterConversionEngineUpdatesTest() {
         resetModulesAndContext();
         ConversionContextManager.disableContextAutoRefresh();
         ConversionContext conversionContext1 = ConversionContextManager.getContext();
-        ConversionModuleFactory.replaceEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceConversionEngine(context -> conversionEngine);
+        ConversionContext conversionContext2 = ConversionContextManager.getContext();
+        Assertions.assertSame(conversionContext1, conversionContext2);
+    }
+
+    @Test
+    void sameContextIsReturnedIfAutoRefreshDisabledAfterCustomGetterSetterMappingStorageUpdatesTest() {
+        resetModulesAndContext();
+        ConversionContextManager.disableContextAutoRefresh();
+        ConversionContext conversionContext1 = ConversionContextManager.getContext();
+        ConversionModuleFactory.replaceCustomGetterSetterMappingStorage(context -> customGetterSetterMappingStorage);
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertSame(conversionContext1, conversionContext2);
     }
@@ -331,7 +417,8 @@ class ConversionContextManagerTest {
         resetModulesAndContext();
         ConversionContextManager.disableContextAutoRefresh();
         ConversionContext conversionContext1 = ConversionContextManager.getContext();
-        ConversionModuleFactory.replaceEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceConversionEngine(context -> conversionEngine);
+        ConversionModuleFactory.replaceCustomGetterSetterMappingStorage(context -> customGetterSetterMappingStorage);
         ConversionModuleFactory.replaceGetterSetterMapper(context -> getterSetterMapper);
         ConversionModuleFactory.replaceExecutableTypeResolver(context -> executableTypeResolver);
         ConversionModuleFactory.replaceTypeConverterPicker(context -> typeConverterPicker);
@@ -365,15 +452,5 @@ class ConversionContextManagerTest {
         ConversionContext conversionContext1 = ConversionContextManager.getContext();
         ConversionContext conversionContext2 = ConversionContextManager.getContext();
         Assertions.assertSame(conversionContext1, conversionContext2);
-    }
-
-    private static void resetModulesAndContext() {
-        ConversionContextManager.disableContextAutoRefresh();
-        ConversionModuleFactory.replaceEngine(null);
-        ConversionModuleFactory.replaceGetterSetterMapper(null);
-        ConversionModuleFactory.replaceExecutableTypeResolver(null);
-        ConversionModuleFactory.replaceTypeConverterPicker(null);
-        ConversionModuleFactory.replaceTypeConverterStorage(null);
-        ConversionContextManager.refreshContext();
     }
 }

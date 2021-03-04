@@ -48,9 +48,8 @@ public final class IterableToListConverter extends IterableConverter<List<?>> {
         return getToType().isAssignableFrom(toType) || toType.isAssignableFrom(getToType());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected List<?> createFromStream(Stream<?> itemsStream, TypeMeta<? extends List<?>> toMeta) {
+    protected <U> List<U> createFromStream(Stream<U> itemsStream, TypeMeta<? extends List<?>> toMeta) {
         return itemsStream.collect(Collectors.toCollection(getTypeSupplier(toMeta.getType())));
     }
 
@@ -59,10 +58,11 @@ public final class IterableToListConverter extends IterableConverter<List<?>> {
         return List.class;
     }
 
-    private Supplier<List> getTypeSupplier(Class<?> type) {
+    @SuppressWarnings("unchecked")
+    private <U> Supplier<List<U>> getTypeSupplier(Class<?> type) {
         if (type.isAssignableFrom(AbstractList.class)) {
             return ArrayList::new;
         }
-        return () -> (List) InstanceCreationUtil.createItem(type);
+        return () -> (List<U>) InstanceCreationUtil.createItem(type);
     }
 }

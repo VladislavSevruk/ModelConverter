@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Uladzislau Seuruk
+ * Copyright (c) 2021 Uladzislau Seuruk
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,28 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.vladislavsevruk.converter.converter.simple.string;
+package com.github.vladislavsevruk.converter.converter.parameterized.enumeration;
 
+import com.github.vladislavsevruk.converter.context.ConversionContext;
+import com.github.vladislavsevruk.converter.converter.parameterized.AbstractParameterizedTypeConverter;
+import com.github.vladislavsevruk.resolver.type.TypeMeta;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * Converts char sequence to char.
+ * Converts char sequence to enum.
+ *
+ * @param <T> enum type of conversion result.
  */
 @Log4j2
-public final class CharSequenceToCharacterConverter extends CharSequenceConverter<Character> {
+public class CharSequenceToEnumConverter<T extends Enum<T>> extends AbstractParameterizedTypeConverter<T> {
+
+    public CharSequenceToEnumConverter(ConversionContext conversionContext) {
+        super(conversionContext);
+    }
 
     @Override
-    protected Character convertNonNullObject(CharSequence from) {
-        if (from.length() == 0) {
+    protected boolean checkToType(Class<?> toType) {
+        return toType.isEnum();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected T convertNonNullObject(Object from, TypeMeta<? extends T> toMeta) {
+        try {
+            return Enum.valueOf((Class<T>) toMeta.getType(), from.toString());
+        } catch (IllegalArgumentException iaEx) {
             log.warn(() -> String
-                    .format("Failed to convert '\"\"' to '%s'. Returning null.", Character.class.getName()));
+                    .format("Failed to convert '\"%s\"' to '%s'. Returning null.", from, toMeta.getType().getName()));
             return null;
         }
-        return from.charAt(0);
+    }
+
+    @Override
+    protected Class<?> getFromType() {
+        return CharSequence.class;
     }
 
     @Override
     protected Class<?> getToType() {
-        return Character.class;
+        return Enum.class;
     }
 }

@@ -60,7 +60,7 @@ public abstract class IterableConverter<T> extends AbstractParameterizedTypeConv
         return null;
     }
 
-    protected abstract T createFromStream(Stream<?> itemsStream, TypeMeta<? extends T> toMeta);
+    protected abstract <U> T createFromStream(Stream<U> itemsStream, TypeMeta<? extends T> toMeta);
 
     @Override
     protected Class<? extends Iterable> getFromType() {

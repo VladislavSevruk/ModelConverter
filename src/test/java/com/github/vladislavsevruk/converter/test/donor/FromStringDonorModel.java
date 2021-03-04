@@ -49,6 +49,14 @@ public class FromStringDonorModel {
         return "1.1";
     }
 
+    public String toEnumNeg() {
+        return "THREE";
+    }
+
+    public String toEnumPos() {
+        return "ONE";
+    }
+
     public String toFloatNeg() {
         return "1.1.1";
     }
