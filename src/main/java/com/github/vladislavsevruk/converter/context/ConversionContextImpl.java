@@ -29,8 +29,10 @@ import com.github.vladislavsevruk.converter.converter.storage.TypeConverterStora
 import com.github.vladislavsevruk.converter.converter.storage.TypeConverterStorageImpl;
 import com.github.vladislavsevruk.converter.engine.ConversionEngine;
 import com.github.vladislavsevruk.converter.engine.ConversionEngineImpl;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorage;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorageImpl;
 import com.github.vladislavsevruk.converter.mapper.GetterSetterMapper;
-import com.github.vladislavsevruk.converter.mapper.method.GetterSetterMapperImpl;
+import com.github.vladislavsevruk.converter.mapper.GetterSetterMapperImpl;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeMetaResolver;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
@@ -50,6 +52,7 @@ import lombok.extern.log4j.Log4j2;
 final class ConversionContextImpl implements ConversionContext {
 
     ConversionEngine conversionEngine;
+    CustomGetterSetterMappingStorage customGetterSetterMappingStorage;
     ExecutableTypeResolver<TypeMeta<?>> executableTypeResolver;
     GetterSetterMapper getterSetterMapper;
     TypeConverterPicker typeConverterPicker;
@@ -58,36 +61,39 @@ final class ConversionContextImpl implements ConversionContext {
     /**
      * Creates new instance using received modules or default implementations for nulls.
      *
-     * @param conversionEngineFactoryMethod       factory method for <code>ConversionEngine</code> module
-     *                                            implementation.
-     * @param getterSetterMapperFactoryMethod     factory method for <code>GetterSetterMapper</code> module
-     *                                            implementation.
-     * @param executableTypeResolverFactoryMethod factory method for <code>ExecutableTypeResolver</code> module
-     *                                            implementation.
-     * @param typeConverterPickerFactoryMethod    factory method for <code>TypeConverterPicker</code> module
-     *                                            implementation.
-     * @param typeConverterStorageFactoryMethod   factory method for <code>TypeConverterStorage</code> module
-     *                                            implementation.
+     * @param conversionEngineFactoryMethod                 factory method for <code>ConversionEngine</code> module
+     *                                                      implementation.
+     * @param customGetterSetterMappingStorageFactoryMethod factory method for <code>CustomGetterSetterMappingStorage</code>
+     *                                                      module implementation.
+     * @param getterSetterMapperFactoryMethod               factory method for <code>GetterSetterMapper</code> module
+     *                                                      implementation.
+     * @param executableTypeResolverFactoryMethod           factory method for <code>ExecutableTypeResolver</code>
+     *                                                      module implementation.
+     * @param typeConverterPickerFactoryMethod              factory method for <code>TypeConverterPicker</code> module
+     *                                                      implementation.
+     * @param typeConverterStorageFactoryMethod             factory method for <code>TypeConverterStorage</code> module
+     *                                                      implementation.
      */
     ConversionContextImpl(ConversionModuleFactoryMethod<ConversionEngine> conversionEngineFactoryMethod,
+            ConversionModuleFactoryMethod<CustomGetterSetterMappingStorage> customGetterSetterMappingStorageFactoryMethod,
             ConversionModuleFactoryMethod<GetterSetterMapper> getterSetterMapperFactoryMethod,
             ConversionModuleFactoryMethod<ExecutableTypeResolver<TypeMeta<?>>> executableTypeResolverFactoryMethod,
             ConversionModuleFactoryMethod<TypeConverterPicker> typeConverterPickerFactoryMethod,
             ConversionModuleFactoryMethod<TypeConverterStorage> typeConverterStorageFactoryMethod) {
         this.conversionEngine = orDefault(conversionEngineFactoryMethod, ConversionEngineImpl::new);
-        log.debug(() -> String.format("Using '%s' as conversion engine.", conversionEngine.getClass().getName()));
+        log.debug("Using '{}' as conversion engine.", conversionEngine.getClass().getName());
+        this.customGetterSetterMappingStorage = orDefault(customGetterSetterMappingStorageFactoryMethod,
+                CustomGetterSetterMappingStorageImpl::new);
+        log.debug("Using '{}' as custom getter setter mapping storage.", conversionEngine.getClass().getName());
         this.executableTypeResolver = orDefault(executableTypeResolverFactoryMethod,
                 context -> new ExecutableTypeMetaResolver());
-        log.debug(() -> String
-                .format("Using '%s' as method type resolver.", executableTypeResolver.getClass().getName()));
+        log.debug("Using '{}' as method type resolver.", executableTypeResolver.getClass().getName());
         this.typeConverterStorage = orDefault(typeConverterStorageFactoryMethod, TypeConverterStorageImpl::new);
-        log.debug(() -> String
-                .format("Using '%s' as type converter storage.", typeConverterStorage.getClass().getName()));
+        log.debug("Using '{}' as type converter storage.", typeConverterStorage.getClass().getName());
         this.typeConverterPicker = orDefault(typeConverterPickerFactoryMethod, TypeConverterPickerImpl::new);
-        log.debug(
-                () -> String.format("Using '%s' as type converter picker.", typeConverterPicker.getClass().getName()));
+        log.debug("Using '{}' as type converter picker.", typeConverterPicker.getClass().getName());
         this.getterSetterMapper = orDefault(getterSetterMapperFactoryMethod, GetterSetterMapperImpl::new);
-        log.debug(() -> String.format("Using '%s' as getter setter mapper.", getterSetterMapper.getClass().getName()));
+        log.debug("Using '{}' as getter setter mapper.", getterSetterMapper.getClass().getName());
     }
 
     private <T> T orDefault(ConversionModuleFactoryMethod<T> factoryMethod,

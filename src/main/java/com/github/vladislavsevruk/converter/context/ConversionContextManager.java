@@ -95,6 +95,7 @@ public final class ConversionContextManager {
 
     private static ConversionContext newContext() {
         return new ConversionContextImpl(ConversionModuleFactory.conversionEngine(),
+                ConversionModuleFactory.customGetterSetterMappingStorage(),
                 ConversionModuleFactory.getterSetterMapper(), ConversionModuleFactory.executableTypeResolver(),
                 ConversionModuleFactory.typeConverterPicker(), ConversionModuleFactory.typeConverterStorage());
     }

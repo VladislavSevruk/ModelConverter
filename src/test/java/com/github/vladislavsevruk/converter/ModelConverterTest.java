@@ -23,7 +23,12 @@
  */
 package com.github.vladislavsevruk.converter;
 
+import com.github.vladislavsevruk.converter.context.ConversionContextManager;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorage;
+import com.github.vladislavsevruk.converter.test.TestEnum;
 import com.github.vladislavsevruk.converter.test.acceptor.AbstractElementSequenceAcceptorModel;
+import com.github.vladislavsevruk.converter.test.acceptor.AcceptorSuperclassModel;
+import com.github.vladislavsevruk.converter.test.acceptor.CustomMappingAcceptorModel;
 import com.github.vladislavsevruk.converter.test.acceptor.ElementSequenceAcceptorModel;
 import com.github.vladislavsevruk.converter.test.acceptor.FromArrayAcceptorModel;
 import com.github.vladislavsevruk.converter.test.acceptor.FromDateAcceptorModel;
@@ -39,6 +44,8 @@ import com.github.vladislavsevruk.converter.test.acceptor.NegativeAcceptorModel;
 import com.github.vladislavsevruk.converter.test.acceptor.PrimitiveTypesAcceptorModel;
 import com.github.vladislavsevruk.converter.test.acceptor.SeveralCandidatesAcceptorModel;
 import com.github.vladislavsevruk.converter.test.donor.AbstractElementSequenceDonorModel;
+import com.github.vladislavsevruk.converter.test.donor.CustomMappingDonorModel;
+import com.github.vladislavsevruk.converter.test.donor.DonorSuperclassModel;
 import com.github.vladislavsevruk.converter.test.donor.ElementSequenceDonorModel;
 import com.github.vladislavsevruk.converter.test.donor.FromArrayDonorModel;
 import com.github.vladislavsevruk.converter.test.donor.FromDateDonorModel;
@@ -128,6 +135,31 @@ class ModelConverterTest {
         Long donor = 1L;
         String result = modelConverter.convert(donor, String.class);
         Assertions.assertEquals(donor.toString(), result);
+    }
+
+    @Test
+    void convertWithCustomMappingsTest() throws Throwable {
+        CustomGetterSetterMappingStorage storage = ConversionContextManager.getContext()
+                .getCustomGetterSetterMappingStorage();
+        storage.addGetterSetterMapping(CustomMappingDonorModel.class.getMethod("donorMatchingType"),
+                AcceptorSuperclassModel.class.getMethod("acceptorSuperclassMatchingType", String.class));
+        storage.addGetterSetterMapping(CustomMappingDonorModel.class.getMethod("donorNonMatchingType"),
+                AcceptorSuperclassModel.class.getMethod("acceptorSuperclassNonMatchingType", Long.class),
+                new TypeProvider<AcceptorSuperclassModel>() {});
+        storage.addGetterSetterMapping(DonorSuperclassModel.class.getMethod("donorSuperclassMatchingType"),
+                CustomMappingAcceptorModel.class.getMethod("acceptorMatchingType", String.class));
+        storage.addGetterSetterMapping(DonorSuperclassModel.class.getMethod("donorSuperclassNonMatchingType"),
+                CustomMappingAcceptorModel.class.getMethod("acceptorNonMatchingType", Long.class));
+        CustomMappingDonorModel donorModel = new CustomMappingDonorModel();
+        CustomMappingAcceptorModel result = modelConverter.convert(donorModel, CustomMappingAcceptorModel.class);
+        Assertions.assertNotNull(result);
+        Assertions.assertNull(result.unexpectedIndicator());
+        Assertions.assertEquals(donorModel.donorSuperclassMatchingType(), result.acceptorMatchingType());
+        Assertions.assertEquals(Long.valueOf(donorModel.donorSuperclassNonMatchingType()),
+                result.acceptorNonMatchingType());
+        Assertions.assertEquals(donorModel.donorMatchingType(), result.acceptorSuperclassMatchingType());
+        Assertions.assertEquals(Long.valueOf(donorModel.donorNonMatchingType()),
+                result.acceptorSuperclassNonMatchingType());
     }
 
     @Test
@@ -289,6 +321,7 @@ class ModelConverterTest {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(Byte.valueOf(donor.toBytePos()), result.toBytePos());
         Assertions.assertEquals(Double.valueOf(donor.toDoublePos()), result.toDoublePos());
+        Assertions.assertEquals(TestEnum.valueOf(donor.toEnumPos()), result.toEnumPos());
         Assertions.assertEquals(Float.valueOf(donor.toFloatPos()), result.toFloatPos());
         Assertions.assertEquals(Integer.valueOf(donor.toIntegerPos()), result.toIntegerPos());
         Assertions.assertEquals(Long.valueOf(donor.toLongPos()), result.toLongPos());
@@ -296,6 +329,7 @@ class ModelConverterTest {
         Assertions.assertEquals('1', result.toCharPos());
         Assertions.assertNull(result.toByteNeg());
         Assertions.assertNull(result.toDoubleNeg());
+        Assertions.assertNull(result.toEnumNeg());
         Assertions.assertNull(result.toFloatNeg());
         Assertions.assertNull(result.toIntegerNeg());
         Assertions.assertNull(result.toLongNeg());

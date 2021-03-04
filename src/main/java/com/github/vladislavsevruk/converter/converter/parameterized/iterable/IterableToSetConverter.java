@@ -48,9 +48,8 @@ public final class IterableToSetConverter extends IterableConverter<Set<?>> {
         return getToType().isAssignableFrom(toType) || toType.isAssignableFrom(getToType());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected Set<?> createFromStream(Stream<?> itemsStream, TypeMeta<? extends Set<?>> toMeta) {
+    protected <U> Set<U> createFromStream(Stream<U> itemsStream, TypeMeta<? extends Set<?>> toMeta) {
         return itemsStream.collect(Collectors.toCollection(getTypeSupplier(toMeta.getType())));
     }
 
@@ -59,10 +58,11 @@ public final class IterableToSetConverter extends IterableConverter<Set<?>> {
         return Set.class;
     }
 
-    private Supplier<Set> getTypeSupplier(Class<?> type) {
+    @SuppressWarnings("unchecked")
+    private <U> Supplier<Set<U>> getTypeSupplier(Class<?> type) {
         if (type.isAssignableFrom(AbstractSet.class)) {
             return LinkedHashSet::new;
         }
-        return () -> (Set) InstanceCreationUtil.createItem(type);
+        return () -> (Set<U>) InstanceCreationUtil.createItem(type);
     }
 }

@@ -14,6 +14,7 @@ This utility library helps to convert from one POJO to another using public gett
   * [Non-parameterized classes](#non-parameterized-classes)
   * [Parameterized classes](#parameterized-classes)
 * [Adding custom converters](#adding-custom-converters)
+* [Adding custom mappings](#adding-custom-mappings)
 * [License](#license)
 
 ## Getting started
@@ -125,6 +126,33 @@ for parameterized type and add it to
 using one of ``add*`` methods:
 ```kotlin
 ConversionContextManager.getContext().getTypeConverterStorage().add(new SomeCustomTypeConverter());
+```
+
+## Adding custom mappings
+By default converter matches donor and acceptor methods that have same names (in classic or fluent styles) but you can 
+add custom mapping to [CustomGetterSetterMappingStorage](src/main/java/com/github/vladislavsevruk/converter/mapper/CustomGetterSetterMappingStorage.java) 
+to point getter to certain setter using one of ``addGetterSetterMapping`` methods (necessary converter will still be 
+added if necessary):
+```java
+public class DonorModel {
+    private String donorField1;
+    private Integer donorField2;
+
+    // getters and setters
+}
+```
+```java
+public class AcceptorModel {
+    private String acceptorField;
+
+    // getters and setters
+}
+```
+```kotlin
+Method donorMethod = DonorModel.class.getMethod("getDonorField1");
+Method acceptorMethod = AcceptorModel.class.getMethod("setAcceptorField", String.class);
+ConversionContextManager.getContext().getCustomGetterSetterMappingStorage()
+        .addGetterSetterMapping(donorMethod, acceptorMethod);
 ```
 
 ## License

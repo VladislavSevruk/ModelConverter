@@ -23,6 +23,7 @@
  */
 package com.github.vladislavsevruk.converter.test.acceptor;
 
+import com.github.vladislavsevruk.converter.test.TestEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -36,6 +37,8 @@ public class FromStringAcceptorModel {
     private Character toCharPos;
     private Double toDoubleNeg;
     private Double toDoublePos;
+    private TestEnum toEnumNeg;
+    private TestEnum toEnumPos;
     private Float toFloatNeg;
     private Float toFloatPos;
     private Integer toIntegerNeg;

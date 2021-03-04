@@ -65,7 +65,7 @@ public abstract class ArrayConverter<T> extends AbstractParameterizedTypeConvert
         return null;
     }
 
-    protected abstract T createFromStream(Stream<?> itemsStream, TypeMeta<? extends T> toMeta);
+    protected abstract <U> T createFromStream(Stream<U> itemsStream, TypeMeta<? extends T> toMeta);
 
     @Override
     protected Class<?> getFromType() {

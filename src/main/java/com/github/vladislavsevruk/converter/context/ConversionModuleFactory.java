@@ -26,6 +26,7 @@ package com.github.vladislavsevruk.converter.context;
 import com.github.vladislavsevruk.converter.converter.picker.TypeConverterPicker;
 import com.github.vladislavsevruk.converter.converter.storage.TypeConverterStorage;
 import com.github.vladislavsevruk.converter.engine.ConversionEngine;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorage;
 import com.github.vladislavsevruk.converter.mapper.GetterSetterMapper;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
@@ -41,11 +42,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public final class ConversionModuleFactory {
 
     private static final ReadWriteLock CONVERSION_ENGINE_LOCK = new ReentrantReadWriteLock();
+    private static final ReadWriteLock CUSTOM_GETTER_SETTER_MAPPING_STORAGE_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock EXECUTABLE_TYPE_RESOLVER_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock GETTER_SETTER_MAPPER_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock TYPE_CONVERTER_PICKER_LOCK = new ReentrantReadWriteLock();
     private static final ReadWriteLock TYPE_CONVERTER_STORAGE_LOCK = new ReentrantReadWriteLock();
     private static ConversionModuleFactoryMethod<ConversionEngine> conversionEngine;
+    private static ConversionModuleFactoryMethod<CustomGetterSetterMappingStorage> customGetterSetterMappingStorage;
     private static ConversionModuleFactoryMethod<ExecutableTypeResolver<TypeMeta<?>>> executableTypeResolver;
     private static ConversionModuleFactoryMethod<GetterSetterMapper> getterSetterMapper;
     private static ConversionModuleFactoryMethod<TypeConverterPicker> typeConverterPicker;
@@ -62,6 +65,17 @@ public final class ConversionModuleFactory {
         ConversionModuleFactoryMethod<ConversionEngine> engineToReturn = ConversionModuleFactory.conversionEngine;
         CONVERSION_ENGINE_LOCK.readLock().unlock();
         return engineToReturn;
+    }
+
+    /**
+     * Returns current instance of <code>ConversionModuleFactoryMethod</code> for <code>CustomGetterSetterMappingStorage</code>.
+     */
+    public static ConversionModuleFactoryMethod<CustomGetterSetterMappingStorage> customGetterSetterMappingStorage() {
+        CUSTOM_GETTER_SETTER_MAPPING_STORAGE_LOCK.readLock().lock();
+        ConversionModuleFactoryMethod<CustomGetterSetterMappingStorage> storageToReturn
+                = ConversionModuleFactory.customGetterSetterMappingStorage;
+        CUSTOM_GETTER_SETTER_MAPPING_STORAGE_LOCK.readLock().unlock();
+        return storageToReturn;
     }
 
     /**
@@ -93,12 +107,29 @@ public final class ConversionModuleFactory {
      *
      * @param engine new instance of <code>ConversionModuleFactoryMethod</code> for <code>ConversionEngine</code>.
      */
-    public static void replaceEngine(ConversionModuleFactoryMethod<ConversionEngine> engine) {
+    public static void replaceConversionEngine(ConversionModuleFactoryMethod<ConversionEngine> engine) {
         CONVERSION_ENGINE_LOCK.writeLock().lock();
-        log.info(() -> String
-                .format("Replacing ConversionEngine by '%s'.", engine == null ? null : engine.getClass().getName()));
+        log.info("Replacing ConversionEngine by '{}'.", engine == null ? null : engine.getClass().getName());
         ConversionModuleFactory.conversionEngine = engine;
         CONVERSION_ENGINE_LOCK.writeLock().unlock();
+        if (ConversionContextManager.isAutoRefreshContext()) {
+            ConversionContextManager.refreshContext();
+        }
+    }
+
+    /**
+     * Replaces instance of <code>ConversionModuleFactoryMethod</code> for <code>CustomGetterSetterMappingStorage</code>.
+     * All further conversions will use new instance.
+     *
+     * @param storage new instance of <code>ConversionModuleFactoryMethod</code> for <code>CustomGetterSetterMappingStorage</code>.
+     */
+    public static void replaceCustomGetterSetterMappingStorage(
+            ConversionModuleFactoryMethod<CustomGetterSetterMappingStorage> storage) {
+        CUSTOM_GETTER_SETTER_MAPPING_STORAGE_LOCK.writeLock().lock();
+        log.info("Replacing CustomGetterSetterMappingStorage by '{}'.",
+                storage == null ? null : storage.getClass().getName());
+        ConversionModuleFactory.customGetterSetterMappingStorage = storage;
+        CUSTOM_GETTER_SETTER_MAPPING_STORAGE_LOCK.writeLock().unlock();
         if (ConversionContextManager.isAutoRefreshContext()) {
             ConversionContextManager.refreshContext();
         }
@@ -113,8 +144,7 @@ public final class ConversionModuleFactory {
     public static void replaceExecutableTypeResolver(
             ConversionModuleFactoryMethod<ExecutableTypeResolver<TypeMeta<?>>> resolver) {
         EXECUTABLE_TYPE_RESOLVER_LOCK.writeLock().lock();
-        log.info(() -> String.format("Replacing ExecutableTypeResolver by '%s'.",
-                resolver == null ? null : resolver.getClass().getName()));
+        log.info("Replacing ExecutableTypeResolver by '{}'.", resolver == null ? null : resolver.getClass().getName());
         ConversionModuleFactory.executableTypeResolver = resolver;
         EXECUTABLE_TYPE_RESOLVER_LOCK.writeLock().unlock();
         if (ConversionContextManager.isAutoRefreshContext()) {
@@ -130,8 +160,7 @@ public final class ConversionModuleFactory {
      */
     public static void replaceGetterSetterMapper(ConversionModuleFactoryMethod<GetterSetterMapper> mapper) {
         GETTER_SETTER_MAPPER_LOCK.writeLock().lock();
-        log.info(() -> String
-                .format("Replacing GetterSetterMapper by '%s'.", mapper == null ? null : mapper.getClass().getName()));
+        log.info("Replacing GetterSetterMapper by '{}'.", mapper == null ? null : mapper.getClass().getName());
         ConversionModuleFactory.getterSetterMapper = mapper;
         GETTER_SETTER_MAPPER_LOCK.writeLock().unlock();
         if (ConversionContextManager.isAutoRefreshContext()) {
@@ -147,8 +176,7 @@ public final class ConversionModuleFactory {
      */
     public static void replaceTypeConverterPicker(ConversionModuleFactoryMethod<TypeConverterPicker> picker) {
         TYPE_CONVERTER_PICKER_LOCK.writeLock().lock();
-        log.info(() -> String
-                .format("Replacing TypeConverterPicker by '%s'.", picker == null ? null : picker.getClass().getName()));
+        log.info("Replacing TypeConverterPicker by '{}'.", picker == null ? null : picker.getClass().getName());
         ConversionModuleFactory.typeConverterPicker = picker;
         TYPE_CONVERTER_PICKER_LOCK.writeLock().unlock();
         if (ConversionContextManager.isAutoRefreshContext()) {
@@ -164,8 +192,7 @@ public final class ConversionModuleFactory {
      */
     public static void replaceTypeConverterStorage(ConversionModuleFactoryMethod<TypeConverterStorage> storage) {
         TYPE_CONVERTER_STORAGE_LOCK.writeLock().lock();
-        log.info(() -> String.format("Replacing TypeConverterStorage by '%s'.",
-                storage == null ? null : storage.getClass().getName()));
+        log.info("Replacing TypeConverterStorage by '{}'.", storage == null ? null : storage.getClass().getName());
         ConversionModuleFactory.typeConverterStorage = storage;
         TYPE_CONVERTER_STORAGE_LOCK.writeLock().unlock();
         if (ConversionContextManager.isAutoRefreshContext()) {

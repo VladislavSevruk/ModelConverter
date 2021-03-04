@@ -44,7 +44,7 @@ public final class ArrayToArrayConverter extends ArrayConverter<Object[]> {
     }
 
     @Override
-    protected Object[] createFromStream(Stream<?> itemsStream, TypeMeta<? extends Object[]> toMeta) {
+    protected <U> Object[] createFromStream(Stream<U> itemsStream, TypeMeta<? extends Object[]> toMeta) {
         return itemsStream
                 .toArray(length -> (Object[]) Array.newInstance(toMeta.getGenericTypes()[0].getType(), length));
     }

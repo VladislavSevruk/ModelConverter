@@ -26,12 +26,15 @@ package com.github.vladislavsevruk.converter.context;
 import com.github.vladislavsevruk.converter.converter.picker.TypeConverterPicker;
 import com.github.vladislavsevruk.converter.converter.storage.TypeConverterStorage;
 import com.github.vladislavsevruk.converter.engine.ConversionEngine;
+import com.github.vladislavsevruk.converter.mapper.CustomGetterSetterMappingStorage;
 import com.github.vladislavsevruk.converter.mapper.GetterSetterMapper;
 import com.github.vladislavsevruk.resolver.resolver.executable.ExecutableTypeResolver;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -44,6 +47,8 @@ class ConversionModuleFactoryTest {
 
     @Mock
     private ConversionEngine conversionEngine;
+    @Mock
+    private CustomGetterSetterMappingStorage customGetterSetterMappingStorage;
     @Mock
     private ExecutableTypeResolver<TypeMeta<?>> executableTypeResolver;
     @Mock
@@ -69,6 +74,7 @@ class ConversionModuleFactoryTest {
     @Test
     void defaultModulesTest() {
         Assertions.assertNull(ConversionModuleFactory.conversionEngine());
+        Assertions.assertNull(ConversionModuleFactory.customGetterSetterMappingStorage());
         Assertions.assertNull(ConversionModuleFactory.getterSetterMapper());
         Assertions.assertNull(ConversionModuleFactory.executableTypeResolver());
         Assertions.assertNull(ConversionModuleFactory.typeConverterPicker());
@@ -78,8 +84,16 @@ class ConversionModuleFactoryTest {
     @Test
     void replaceConversionEngineTest() {
         ConversionModuleFactoryMethod<ConversionEngine> factoryMethod = context -> conversionEngine;
-        ConversionModuleFactory.replaceEngine(factoryMethod);
+        ConversionModuleFactory.replaceConversionEngine(factoryMethod);
         Assertions.assertEquals(factoryMethod, ConversionModuleFactory.conversionEngine());
+    }
+
+    @Test
+    void replaceCustomGetterSetterMappingStorageTest() {
+        ConversionModuleFactoryMethod<CustomGetterSetterMappingStorage> factoryMethod
+                = context -> customGetterSetterMappingStorage;
+        ConversionModuleFactory.replaceCustomGetterSetterMappingStorage(factoryMethod);
+        Assertions.assertEquals(factoryMethod, ConversionModuleFactory.customGetterSetterMappingStorage());
     }
 
     @Test
@@ -109,5 +123,11 @@ class ConversionModuleFactoryTest {
         ConversionModuleFactoryMethod<TypeConverterStorage> factoryMethod = context -> typeConverterStorage;
         ConversionModuleFactory.replaceTypeConverterStorage(factoryMethod);
         Assertions.assertEquals(factoryMethod, ConversionModuleFactory.typeConverterStorage());
+    }
+
+    @BeforeEach
+    @AfterEach
+    void resetModulesAndContext() {
+        ContextUtil.resetModulesAndContext();
     }
 }

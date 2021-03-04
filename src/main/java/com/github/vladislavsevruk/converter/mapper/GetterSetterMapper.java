@@ -37,13 +37,13 @@ public interface GetterSetterMapper {
     /**
      * Maps getter from donor type to setter from acceptor type.
      *
-     * @param donorMethodName  <code>String</code> with name of getter method from donor method.
+     * @param donorMethod      getter <code>Method</code> from donor type.
      * @param donorMethodValue value of getter method from donor type.
      * @param acceptorMeta     acceptor <code>TypeMeta</code> with actual types for generic parameters.
-     * @param acceptorMethods  <code>List</code> of acceptor setter possible.
+     * @param acceptorMethods  <code>List</code> of possible acceptor setters.
      * @return <code>MappedMethodPair</code> with mapped getter from donor type, setter from acceptor type and type
      * converter if needed.
      */
-    MappedMethod mapMatchingSetter(String donorMethodName, Object donorMethodValue, TypeMeta<?> acceptorMeta,
+    MappedMethod mapMatchingSetter(Method donorMethod, Object donorMethodValue, TypeMeta<?> acceptorMeta,
             List<Method> acceptorMethods);
 }

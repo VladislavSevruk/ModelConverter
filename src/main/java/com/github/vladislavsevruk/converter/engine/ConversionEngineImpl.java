@@ -66,8 +66,10 @@ public final class ConversionEngineImpl implements ConversionEngine {
         ClassTypeConverter<T> matchingConverter = conversionContext.getTypeConverterPicker()
                 .pickConverter(from.getClass(), toMeta);
         if (Objects.isNull(matchingConverter)) {
-            String message = "Failed to find any matching converter from '%s' to '%s' type. You can add your converter "
-                    + "implementation using 'ConversionContextManager.getContext().getTypeConverterStorage().add*' methods.";
+            String message = String
+                    .format("Failed to find any matching converter from '%s' to '%s' type. You can add your converter "
+                                    + "implementation using 'ConversionContextManager.getContext().getTypeConverterStorage().add*' methods.",
+                            from.getClass().getName(), toMeta.getType().getName());
             log.error(message);
             throw new TypeConversionException(message);
         }

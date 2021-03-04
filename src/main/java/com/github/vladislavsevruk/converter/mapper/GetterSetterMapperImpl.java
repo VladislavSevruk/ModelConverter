@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Uladzislau Seuruk
+ * Copyright (c) 2021 Uladzislau Seuruk
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.github.vladislavsevruk.converter.mapper.method;
+package com.github.vladislavsevruk.converter.mapper;
 
 import com.github.vladislavsevruk.converter.context.ConversionContext;
 import com.github.vladislavsevruk.converter.converter.simple.ClassTypeConverter;
-import com.github.vladislavsevruk.converter.mapper.GetterSetterMapper;
+import com.github.vladislavsevruk.converter.mapper.method.MappedMethod;
+import com.github.vladislavsevruk.converter.mapper.method.MethodMeta;
+import com.github.vladislavsevruk.converter.mapper.method.MethodMetaConverterPair;
 import com.github.vladislavsevruk.converter.util.ClassUtil;
 import com.github.vladislavsevruk.resolver.type.TypeMeta;
 import com.github.vladislavsevruk.resolver.util.PrimitiveWrapperUtil;
@@ -57,47 +59,31 @@ public final class GetterSetterMapperImpl implements GetterSetterMapper {
      * {@inheritDoc}
      */
     @Override
-    public MappedMethod mapMatchingSetter(String donorMethodName, Object donorMethodValue, TypeMeta<?> acceptorMeta,
+    public MappedMethod mapMatchingSetter(Method donorMethod, Object donorMethodValue, TypeMeta<?> acceptorMeta,
             List<Method> acceptorMethods) {
-        log.debug(() -> String.format("Trying to pick matching setter for '%s' donor method.", donorMethodName));
-        MappedMethod methodPair = doMapMatchingSetter(donorMethodName, donorMethodValue, acceptorMeta, acceptorMethods);
-        if (Objects.nonNull(methodPair)) {
+        log.debug("Trying to pick matching setter for '{}' donor method.", donorMethod.getName());
+        MappedMethod mappedMethod = doMapMatchingSetter(donorMethod, donorMethodValue, acceptorMeta, acceptorMethods);
+        if (Objects.nonNull(mappedMethod)) {
             log.debug(() -> {
-                String messagePart = methodPair.getTypeConverter() == null ? ""
-                        : " with type converter " + methodPair.getTypeConverter().getName();
-                return String.format("Mapped setter - '%s'%s.", methodPair.getAcceptorMethod().getName(), messagePart);
+                String messagePart = mappedMethod.getTypeConverter() == null ? ""
+                        : " with type converter " + mappedMethod.getTypeConverter().getName();
+                return String
+                        .format("Mapped setter - '%s'%s.", mappedMethod.getAcceptorMethod().getName(), messagePart);
             });
         }
-        return methodPair;
+        return mappedMethod;
     }
 
-    private MappedMethod doMapMatchingSetter(String donorMethodName, Object donorMethodValue, TypeMeta<?> acceptorMeta,
+    private MappedMethod doMapMatchingSetter(Method donorMethod, Object donorMethodValue, TypeMeta<?> acceptorMeta,
             List<Method> acceptorMethods) {
-        List<MethodMeta> candidates = new ArrayList<>();
-        MappedMethod matchingTypeMethodPair = null;
-        for (Method acceptorMethod : acceptorMethods) {
-            if (!isNamesMatch(donorMethodName, acceptorMethod.getName())) {
-                continue;
-            }
-            TypeMeta<?> acceptorParameterTypeMeta = getParameterTypeMeta(acceptorMeta, acceptorMethod);
-            MappedMethod mappedMethodPair = getMappedPairForSameType(donorMethodValue, acceptorMethod,
-                    acceptorParameterTypeMeta);
-            // if types are the same return method pair straight away
-            if (Objects.nonNull(mappedMethodPair)) {
-                return mappedMethodPair;
-            }
-            if (Objects.isNull(matchingTypeMethodPair)) {
-                mappedMethodPair = getMappedPairForMatchingType(donorMethodValue, acceptorMethod,
-                        acceptorParameterTypeMeta);
-                // otherwise pick first found pair with matching types
-                if (Objects.nonNull(mappedMethodPair)) {
-                    matchingTypeMethodPair = mappedMethodPair;
-                }
-                candidates.add(new MethodMeta(acceptorMethod, acceptorParameterTypeMeta, null));
-            }
+        MappedMethod mappedMethod = conversionContext.getCustomGetterSetterMappingStorage()
+                .getMapping(donorMethod, donorMethodValue, acceptorMeta);
+        if (Objects.nonNull(mappedMethod)) {
+            log.debug("Found custom mapping for '{}' donor method and '{}' acceptor.", donorMethod.getName(),
+                    acceptorMeta);
+            return mappedMethod;
         }
-        return matchingTypeMethodPair != null ? matchingTypeMethodPair
-                : pickFromCandidates(candidates, donorMethodValue);
+        return mapMatchingSetterFromAcceptorMethods(donorMethod, donorMethodValue, acceptorMeta, acceptorMethods);
     }
 
     private MappedMethod getMappedPairForMatchingType(Object donorMethodValue, Method acceptorMethod,
@@ -146,6 +132,35 @@ public final class GetterSetterMapperImpl implements GetterSetterMapper {
         return donorMethodNameWithoutPrefix.equals(acceptorMethodName) || donorMethodName
                 .equals(acceptorMethodNameWithoutPrefix) || donorMethodNameWithoutPrefix
                 .equals(acceptorMethodNameWithoutPrefix);
+    }
+
+    private MappedMethod mapMatchingSetterFromAcceptorMethods(Method donorMethod, Object donorMethodValue,
+            TypeMeta<?> acceptorMeta, List<Method> acceptorMethods) {
+        List<MethodMeta> candidates = new ArrayList<>();
+        MappedMethod matchingTypeMethodPair = null;
+        for (Method acceptorMethod : acceptorMethods) {
+            if (!isNamesMatch(donorMethod.getName(), acceptorMethod.getName())) {
+                continue;
+            }
+            TypeMeta<?> acceptorParameterTypeMeta = getParameterTypeMeta(acceptorMeta, acceptorMethod);
+            MappedMethod mappedMethodPair = getMappedPairForSameType(donorMethodValue, acceptorMethod,
+                    acceptorParameterTypeMeta);
+            // if types are the same return method pair straight away
+            if (Objects.nonNull(mappedMethodPair)) {
+                return mappedMethodPair;
+            }
+            if (Objects.isNull(matchingTypeMethodPair)) {
+                mappedMethodPair = getMappedPairForMatchingType(donorMethodValue, acceptorMethod,
+                        acceptorParameterTypeMeta);
+                // otherwise pick first found pair with matching types
+                if (Objects.nonNull(mappedMethodPair)) {
+                    matchingTypeMethodPair = mappedMethodPair;
+                }
+                candidates.add(new MethodMeta(acceptorMethod, acceptorParameterTypeMeta, null));
+            }
+        }
+        return matchingTypeMethodPair != null ? matchingTypeMethodPair
+                : pickFromCandidates(candidates, donorMethodValue);
     }
 
     private MappedMethod pickFromCandidates(List<MethodMeta> candidates, Object donorMethodValue) {
